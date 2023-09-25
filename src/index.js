@@ -1,7 +1,6 @@
 const axios = require('axios');
 const puppeteer = require('puppeteer');
-const officegen = require('officegen')
-const fs = require('fs')
+const fs = require('fs');
 
 // 获取项目库部位列表，对应页面：https://www.soyoung.com/itemk
 const getPartList = () => {
