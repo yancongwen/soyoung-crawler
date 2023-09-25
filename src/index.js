@@ -53,24 +53,30 @@ const getSolutionDetail = async solutionId => {
     const browser = await puppeteer.launch({ headless: 'new' });
     const page = await browser.newPage();
     await page.goto(`https://www.soyoung.com/itemk/solution/${solutionId}`);
-    const contentList = await page.evaluate(`__NUXT__.fetch['data-v-36f45db5:0'].contentList`);
+    const data = await page.evaluate(`__NUXT__.fetch['data-v-36f45db5:0']`);
     await browser.close();
-    return contentList;
+    return data;
 }
 
 const start = async () => {
     const result = [];
+    let count = 0;
+    let solutionCount = 0;
     const partList = await getPartList();
+    console.log(`part count: ${partList.length}`)
     for (let i = 0; i < partList.length; i++) {
         for (let j = 0; j < partList[i].effectList.length; j++) {
             const solutionList = await getSolutionListByEffectId(partList[i].effectList[j].id)
+            solutionCount += solutionList.length
             console.log(`Fetch effect ${partList[i].effectList[j].id} success.`)
             for (let k = 0; k < solutionList.length; k++) {
-                const contentList = await getSolutionDetail(solutionList[k].id)
-                console.log(`Fetch solution ${solutionList[k].id} success.`)
+                const { contentList, infoData } = await getSolutionDetail(solutionList[k].id)
+                console.log(`${++count}: fetch solution ${solutionList[k].id} success.`)
                 result.push({
                     id: solutionList[k].id,
                     name: solutionList[k].name,
+                    alias: infoData.name_alias,
+                    desc: infoData.feature,
                     partName: partList[i].name,
                     effectName: partList[i].effectList[j].name,
                     contentList,
@@ -78,6 +84,7 @@ const start = async () => {
             }
         }
     }
+    console.log(`solutionCount: ${solutionCount}`)
     fs.writeFile('output/result.json', JSON.stringify(result, null, 2), err => {
         if (err) throw err
         console.log('Data written to file')

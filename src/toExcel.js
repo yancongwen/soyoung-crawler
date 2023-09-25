@@ -2,7 +2,7 @@ const officegen = require('officegen');
 const fs = require('fs-extra');
 const path = require('path');
 
-const list = fs.readJsonSync(path.join(__dirname, '../output/soyoung.json'))
+const list = fs.readJsonSync(path.join(__dirname, '../output/result.json'))
 
 // Create an empty Excel object:
 const xlsx = officegen('xlsx')
@@ -22,10 +22,10 @@ xlsx.on('error', function (err) {
 let sheet = xlsx.makeNewSheet()
 sheet.name = 'sheet1'
 
-sheet.data[0] = ['ID', '项目名称', '部位', '功效', '基础信息', '使用方式', '适用产品', '术后锦囊', '常见问答']
+sheet.data[0] = ['ID', '项目名称', '别名', '描述', '部位', '功效', '基础信息', '使用方式', '适用产品', '术后锦囊', '常见问答']
 
 list.forEach((item, index) => {
-    const { id, name, partName, effectName, contentList } = item;
+    const { id, name, alias, desc, partName, effectName, contentList } = item;
     let detail, usage, products, tips, questions = ''
     if (contentList[0]) {
         detail = contentList[0].content.map(item => `${item.title}：${item.content}`).join('\n')
@@ -53,7 +53,7 @@ list.forEach((item, index) => {
             questions = contentList[2].content[1].content.map(item => `${item.question}\n${item.answer}\n`).join('\n')
         }
     }
-    sheet.data[index + 1] = [id, name, partName, effectName, detail, usage, products, tips, questions]
+    sheet.data[index + 1] = [id, name, alias, desc, partName, effectName, detail, usage, products, tips, questions]
 });
 
 // Let's generate the Excel document into a file:
